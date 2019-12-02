@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>RadarBola</title>
+	<meta name="description" content="PWA">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="css/materialize.min.css">
+	<link rel="manifest" href="/manifest.json">
+	<meta name="theme color" content="#00897B">
+</head>
+<body>
+
+	<nav class="red lighten -1" role="navigation">
+		<div class="nav-wrapper container">
+			<a href="#" class="brand-logo" id="logo-container">RadarBola</a>
+			<a href="#" class="sidenav-trigger" data-target="nav-mobile">☰</a>
+
+			<ul class="topnav right hide-on-med-and-down"></ul>
+			<ul class="sidenav" id="nav-mobile"></ul>
+		</div>
+	</nav>
+	<div class="container">
+		<h2 id="tabheader" class="header">Current Matchlist</h2>
+		<table class="striped">
+	        <thead>
+	          <tr>
+	              <th>Date</th>
+	              <th>Time</th>
+	              <th>Status</th>
+	              <th>Season</th>
+	              <th>Home Team</th>
+	              <th>Away Team</th>
+	              <th>Favorite</th>
+	          </tr>
+	        </thead>
+
+	        <tbody id="matchtab">
+	         
+	        </tbody>
+	      </table>
+  	</div>
+	<div class="container" id="body-content"></div>
+	<script type="text/javascript" src="https://unpkg.com/snarkdown@1.0.2/dist/snarkdown.umd.js"></script>
+	<script src="js/materialize.min.js"></script>
+	<script src="js/nav.js"></script>
+	<script src="js/api.js"></script>
+	<script type="text/javascript" src="/js/vendor/idb.js"></script>
+	<script src="js/db.js"></script>
+	<script>
+		if ("serviceWorker" in navigator)
+		{
+			window.addEventListener("load", function()
+			{
+				navigator.serviceWorker
+				.register("/service-worker.js")
+				.then(function()
+				{
+					console.log("Pendafaran ServiceWorker berhasil");
+				})
+				.catch(function()
+				{
+					console.log("Pendaftaran ServiceWorker gagal");
+				});
+			});
+		}
+		else
+		{
+			console.log("ServiceWorker belum didukung browser browser ini")
+		}
+
+	</script>
+	<script>
+	function getFromDB()
+	{
+		document.getElementById('tabheader').innerHTML = 'Favorite Matches'
+		console.log('test get')
+	var dbPromise = idb.open("mydatabase", 5 , function(upgradeDb)
+{
+	if(!upgradeDb.objectStoreNames.contains("match"))
+	{
+		upgradeDb.createObjectStore("match", {keyPath: 'id'});
+		
+
+	}
+	console.log('getting I')
+
+});
+ dbPromise.then(function(db)
+      {
+      	console.log('getting II')
+        var tx = db.transaction('match', 'readwrite');
+        var store = tx.objectStore('match');
+
+        return store.getAll();
+      })
+ .then (function(items)
+ {
+ 	console.log('fav:', items);
+ 	let favHTML = "";
+
+ 	for(let item of items)
+ 	{
+ 		const matchdate = new Date(item.utcDate);
+
+ 		favHTML+=`
+ 		<tr>
+            <td>${matchdate.getFullYear()}-${matchdate.getMonth() +1}-${matchdate.getDate()}</td>
+            <td>${matchdate.getUTCHours()}:${matchdate.getUTCMinutes()}</td>
+            <td>${item.status}</td>
+            <td>${item.season.startDate}&nbsp;s/d&nbsp;${item.season.endDate}</td>
+            <td>${item.homeTeam.name}</td>
+            <td>${item.awayTeam.name}</td>
+            <td><div class="switch">
+                <label>
+                  <input type="checkbox" onClick="sendToDb('${encodeURI(JSON.stringify(item))}', this)" ${exstatus}>
+                  <span class="lever"></span>
+                </label>
+              </div>
+            </td>
+
+
+            </tr>`
+ 	}
+ 	console.log(favHTML)
+ 	document.getElementById("matchtab").innerHTML = favHTML;
+ })
+	}
+</script>
+
+<script>
+	
+</script>
+
+</body>
+</html>

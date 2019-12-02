@@ -1,0 +1,51 @@
+<!--<h2 class="header">Favorite Matches</h2>-->
+<script>
+	function getFromDB()
+	{
+		console.log('test get')
+	var dbPromise = idb.open("mydatabase", 5 , function(upgradeDb)
+{
+	if(!upgradeDb.objectStoreNames.contains("match"))
+	{
+		upgradeDb.createObjectStore("match", {keyPath: 'id'});
+		
+
+	}
+	console.log('getting I')
+
+});
+ dbPromise.then(function(db)
+      {
+      	console.log('getting II')
+        var tx = db.transaction('match', 'readwrite');
+        var store = tx.objectStore('match');
+
+        return store.getAll();
+      })
+ .then (function(items)
+ {
+ 	console.log('fav:', items);
+ })
+	}
+	
+
+</script>
+
+<table class="striped">
+        <thead>
+          <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Status</th>
+              <th>Season</th>
+              <th>Home Team</th>
+              <th>Away Team</th>
+              <th>Favorite</th>
+          </tr>
+        </thead>
+
+        <tbody id="matchtab">
+         
+        </tbody>
+      </table>
+</div>
